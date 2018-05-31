@@ -1,4 +1,4 @@
-__kernel void blellochScan(
+void blellochScan(
 	__global const int * input,
 	__global int *output,
 	const int n)
@@ -38,4 +38,38 @@ __kernel void blellochScan(
 	barrier(CLK_LOCAL_MEM_FENCE);
 	output[2 * thid] = temp[2 * thid];
 	output[2 * thid + 1] = temp[2 * thid + 1];
+}
+
+bool predicate(int num) {
+	return num >= 5;
+}
+
+__kernel void compact(
+	__global const int *input,
+	__global int *output,
+	const unsigned int numElements,
+	__global unsigned int *numPassedElements)
+{ 
+	//__global int *predicateResults = output;
+	//__global int *predicateResultsScanned = output;
+
+	int thid = get_local_id(0);
+	bool passed = predicate(input[thid]);
+
+	// Write predicate eval results to output array
+	output[thid] = passed ? 1 : 0;
+
+	barrier(CLK_LOCAL_MEM_FENCE);
+
+	// Scan output array (into output array)
+	blellochScan(output, output, numElements);
+
+	barrier(CLK_LOCAL_MEM_FENCE);
+
+	// Scatter!!
+	if (passed) { 
+		output[output[thid]] = input[thid];
+		atomic_inc(numPassedElements);
+	}
+
 }

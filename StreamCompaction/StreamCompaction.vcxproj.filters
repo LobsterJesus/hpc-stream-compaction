@@ -25,7 +25,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="BlellochScan.cl">
+    <None Include="Compact.cl">
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>

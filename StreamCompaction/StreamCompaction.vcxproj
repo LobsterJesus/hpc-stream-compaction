@@ -155,7 +155,7 @@
     <ClCompile Include="StreamCompaction.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="BlellochScan.cl" />
+    <None Include="Compact.cl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
