@@ -10,6 +10,7 @@ void blellochScan(
 	temp[2 * thid] = input[2 * thid];
 	temp[2 * thid + 1] = input[2 * thid + 1];
 
+	// Up-sweep
 	for (int d = n >> 1; d > 0; d >>= 1) {
 		barrier(CLK_LOCAL_MEM_FENCE);
 		if (thid < d) {
@@ -20,15 +21,17 @@ void blellochScan(
 		offset *= 2;
 	}
 
+	// Set root to zero
 	if (thid == 0) { temp[n - 1] = 0; }
 
+	// Down-sweep
 	for (int d = 1; d < n; d *= 2) {
 		offset >>= 1;
 		barrier(CLK_LOCAL_MEM_FENCE);
 		if (thid < d) {
 			int ai = offset * (2 * thid + 1) - 1;
 			int bi = offset * (2 * thid + 2) - 1;
-			//swap and add
+			//Swap and add
 			int t = temp[ai];
 			temp[ai] = temp[bi];
 			temp[bi] += t;
@@ -40,7 +43,8 @@ void blellochScan(
 	output[2 * thid + 1] = temp[2 * thid + 1];
 }
 
-bool predicate(int num) {
+bool predicate(int num) 
+{
 	return num >= 5;
 }
 
@@ -50,9 +54,6 @@ __kernel void compact(
 	const unsigned int numElements,
 	__global unsigned int *numPassedElements)
 { 
-	//__global int *predicateResults = output;
-	//__global int *predicateResultsScanned = output;
-
 	int thid = get_local_id(0);
 	bool passed = predicate(input[thid]);
 
@@ -66,10 +67,10 @@ __kernel void compact(
 
 	barrier(CLK_LOCAL_MEM_FENCE);
 
-	// Scatter!!
-	if (passed) { 
+	// Scatter
+	if (passed) 
+	{ 
 		output[output[thid]] = input[thid];
 		atomic_inc(numPassedElements);
 	}
-
 }
